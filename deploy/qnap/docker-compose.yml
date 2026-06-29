@@ -1,0 +1,23 @@
+# RuView (WiFi-DensePose) — QNAP / Container Station deployment template.
+#
+# Usage:
+#   cp .env.example .env        # then fill in RUVIEW_API_TOKEN + SENSING_ALLOWED_HOSTS
+#   docker compose up -d        # (older Container Station: docker-compose up -d)
+#
+# The image is pinned for reproducibility (RUVIEW_IMAGE_TAG). Bump it in .env when
+# you adopt a newer RuView release. For the auto-everything imperative path (token
+# generation + LAN-IP allowlist detection), use ../../scripts/deploy-qnap.sh instead.
+services:
+  ruview:
+    image: ruvnet/wifi-densepose:${RUVIEW_IMAGE_TAG:-v0.8.3-esp32}
+    container_name: ${CONTAINER_NAME:-ruview}
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3010}:3000"        # UI / REST
+      - "${WS_PORT:-3011}:3001"     # WebSocket (/ws/sensing)
+      - "5005:5005/udp"             # ESP32 CSI ingest
+    environment:
+      CSI_SOURCE: ${CSI_SOURCE:-simulated}            # simulated | esp32 | wifi
+      RUVIEW_API_TOKEN: ${RUVIEW_API_TOKEN:-}         # bearer token; required unless allow-unauth
+      SENSING_ALLOWED_HOSTS: ${SENSING_ALLOWED_HOSTS:-}   # else browsers get HTTP 421
+      RUVIEW_ALLOW_UNAUTHENTICATED: ${RUVIEW_ALLOW_UNAUTHENTICATED:-}  # set 1 for open trusted-LAN
