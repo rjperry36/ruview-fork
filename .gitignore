@@ -291,3 +291,7 @@ harness/**/ruvector.db
 # ruvector runtime/hook DB — never tracked (any depth)
 ruvector.db
 **/ruvector.db
+
+# macOS Finder cruft
+.DS_Store
+**/.DS_Store
